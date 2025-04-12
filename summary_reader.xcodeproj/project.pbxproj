@@ -8,6 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		55F0B8A82DAAFF8E00C38644 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 55F0B8A72DAAFF8E00C38644 /* ComposableArchitecture */; };
+		55F0B9182DAB073900C38644 /* the_call_of_cthulhu_chapter_2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9112DAB073900C38644 /* the_call_of_cthulhu_chapter_2.mp3 */; };
+		55F0B9192DAB073900C38644 /* the_call_of_cthulhu.json in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B90F2DAB073900C38644 /* the_call_of_cthulhu.json */; };
+		55F0B91A2DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9162DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg */; };
+		55F0B91B2DAB073900C38644 /* the_call_of_cthulhu_chapter_4.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9132DAB073900C38644 /* the_call_of_cthulhu_chapter_4.mp3 */; };
+		55F0B91C2DAB073900C38644 /* the_call_of_cthulhu_chapter_5.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9142DAB073900C38644 /* the_call_of_cthulhu_chapter_5.mp3 */; };
+		55F0B91D2DAB073900C38644 /* the_call_of_cthulhu_chapter_1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9102DAB073900C38644 /* the_call_of_cthulhu_chapter_1.mp3 */; };
+		55F0B91E2DAB073900C38644 /* the_call_of_cthulhu_chapter_3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9122DAB073900C38644 /* the_call_of_cthulhu_chapter_3.mp3 */; };
+		55F0B91F2DAB073900C38644 /* the_call_of_cthulhu_chapter_6.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 55F0B9152DAB073900C38644 /* the_call_of_cthulhu_chapter_6.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +39,14 @@
 		55081B632DAABFF900BE035E /* summary_reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = summary_reader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55081B702DAABFFA00BE035E /* summary_readerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = summary_readerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		55081B7A2DAABFFA00BE035E /* summary_readerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = summary_readerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		55F0B90F2DAB073900C38644 /* the_call_of_cthulhu.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = the_call_of_cthulhu.json; sourceTree = "<group>"; };
+		55F0B9102DAB073900C38644 /* the_call_of_cthulhu_chapter_1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_1.mp3; sourceTree = "<group>"; };
+		55F0B9112DAB073900C38644 /* the_call_of_cthulhu_chapter_2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_2.mp3; sourceTree = "<group>"; };
+		55F0B9122DAB073900C38644 /* the_call_of_cthulhu_chapter_3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_3.mp3; sourceTree = "<group>"; };
+		55F0B9132DAB073900C38644 /* the_call_of_cthulhu_chapter_4.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_4.mp3; sourceTree = "<group>"; };
+		55F0B9142DAB073900C38644 /* the_call_of_cthulhu_chapter_5.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_5.mp3; sourceTree = "<group>"; };
+		55F0B9152DAB073900C38644 /* the_call_of_cthulhu_chapter_6.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = the_call_of_cthulhu_chapter_6.mp3; sourceTree = "<group>"; };
+		55F0B9162DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = the_call_of_cthulhu_chapter_cover.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -47,11 +63,6 @@
 		55081B7D2DAABFFA00BE035E /* summary_readerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = summary_readerUITests;
-			sourceTree = "<group>";
-		};
-		55F0B8E22DAB00AF00C38644 /* books */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = books;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -85,11 +96,18 @@
 		55081B5A2DAABFF900BE035E = {
 			isa = PBXGroup;
 			children = (
+				55F0B90F2DAB073900C38644 /* the_call_of_cthulhu.json */,
+				55F0B9102DAB073900C38644 /* the_call_of_cthulhu_chapter_1.mp3 */,
+				55F0B9112DAB073900C38644 /* the_call_of_cthulhu_chapter_2.mp3 */,
+				55F0B9122DAB073900C38644 /* the_call_of_cthulhu_chapter_3.mp3 */,
+				55F0B9132DAB073900C38644 /* the_call_of_cthulhu_chapter_4.mp3 */,
+				55F0B9142DAB073900C38644 /* the_call_of_cthulhu_chapter_5.mp3 */,
+				55F0B9152DAB073900C38644 /* the_call_of_cthulhu_chapter_6.mp3 */,
+				55F0B9162DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg */,
 				55081B652DAABFF900BE035E /* summary_reader */,
 				55081B732DAABFFA00BE035E /* summary_readerTests */,
 				55081B7D2DAABFFA00BE035E /* summary_readerUITests */,
 				55081B642DAABFF900BE035E /* Products */,
-				55F0B8E22DAB00AF00C38644 /* books */,
 			);
 			sourceTree = "<group>";
 		};
@@ -120,7 +138,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				55081B652DAABFF900BE035E /* summary_reader */,
-				55F0B8E22DAB00AF00C38644 /* books */,
 			);
 			name = summary_reader;
 			packageProductDependencies = (
@@ -228,6 +245,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55F0B9182DAB073900C38644 /* the_call_of_cthulhu_chapter_2.mp3 in Resources */,
+				55F0B9192DAB073900C38644 /* the_call_of_cthulhu.json in Resources */,
+				55F0B91A2DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg in Resources */,
+				55F0B91B2DAB073900C38644 /* the_call_of_cthulhu_chapter_4.mp3 in Resources */,
+				55F0B91C2DAB073900C38644 /* the_call_of_cthulhu_chapter_5.mp3 in Resources */,
+				55F0B91D2DAB073900C38644 /* the_call_of_cthulhu_chapter_1.mp3 in Resources */,
+				55F0B91E2DAB073900C38644 /* the_call_of_cthulhu_chapter_3.mp3 in Resources */,
+				55F0B91F2DAB073900C38644 /* the_call_of_cthulhu_chapter_6.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,5 +11,5 @@ struct Chapter: Equatable, Codable, Identifiable {
     let id: String
     let title: String
     let text: String
-    let audiFile: String
+    let audioFile: String
 }

@@ -48,12 +48,10 @@ struct BooksListView: View {
     }
 
     private func loadImage(named name: String) -> UIImage {
-        guard let url = Bundle.main.url(forResource: "Books", withExtension: nil)?
-                .appending(path: name, directoryHint: .notDirectory),
+        guard let url = Bundle.main.url(forResource: name, withExtension: nil),
               let data = try? Data(contentsOf: url),
               let image = UIImage(data: data) else {
             return UIImage(systemName: "book")!
         }
         return image
-    }
-}
+    }}

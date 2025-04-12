@@ -22,37 +22,15 @@ extension DependencyValues {
 private enum BookClientKey: DependencyKey {
     static let liveValue = BookClient(
         loadBooks: {
-            let fileManager = FileManager.default
-            guard let resourcesFolder = Bundle.main.resourceURL?.appendingPathComponent("books") else {
-                    fatalError("Books folder not found!")
+            guard let jsonURL = Bundle.main.url(forResource: "the_call_of_cthulhu", withExtension: "json") else {
+                fatalError("❌ JSON not found in bundle.")
             }
-            
-            let subdirectories = try fileManager.contentsOfDirectory(
-                at: resourcesFolder,
-                includingPropertiesForKeys: nil
-            ).filter { $0.hasDirectoryPath }
-            
-            var audioBooks: [AudioBook] = []
-            
-            for directory in subdirectories {
-                let jsonFiles = try fileManager.contentsOfDirectory(
-                    at: directory,
-                    includingPropertiesForKeys: nil
-                )
-                .filter { $0.pathExtension == "json" }
 
-                guard let jsonURL = jsonFiles.first else {
-                    print("Json not found! Pay attention")
-                    continue
-                }
+            let data = try Data(contentsOf: jsonURL)
+            let book = try JSONDecoder().decode(AudioBook.self, from: data)
 
-                let data = try Data(contentsOf: jsonURL)
-                let book = try JSONDecoder().decode(AudioBook.self, from: data)
-                
-                audioBooks.append(book)
-            }
-            
-            return audioBooks
+            print("✅ Loaded book:", book.title)
+            return [book]
         }
     )
 }
