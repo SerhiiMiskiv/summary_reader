@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Audiobook: Codable, Equatable, Identifiable {
+struct AudioBook: Codable, Equatable, Identifiable {
     let id: String
     let title: String
     let author: String

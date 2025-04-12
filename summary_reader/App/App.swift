@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
-struct summary_readerApp: App {
+struct SummaryReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BooksListView(
+                store: Store(initialState: BookListFeature.State()) {
+                    BookListFeature()
+                }
+            )
         }
     }
 }

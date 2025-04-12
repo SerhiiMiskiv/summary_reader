@@ -1,41 +1,34 @@
 {
-  "id": "1",
-  "title": "The Call of Cthulhu",
+  "bookTitle": "The Call of Cthulhu",
   "author": "H. P. Lovecraft",
   "coverImage": "the_call_of_cthulhu_chapter_cover.jpg",
   "chapters": [
     {
-      "id": "1",
       "title": "The Horror in Clay - Part 1",
       "text": "Francis Wayland Thurston begins uncovering the strange legacy of his grand-uncle, Professor Angell, through mysterious documents and a strange bas-relief sculpture tied to a cult worshiping a being called Cthulhu.",
       "audioFile": "the_call_of_cthulhu_chapter_1.mp3"
     },
     {
-      "id": "2",
       "title": "The Horror in Clay - Part 2",
       "text": "Thurston investigates the artist Henry Wilcox’s dreams and their alignment with a global pattern of disturbances and shared visions, suggesting an otherworldly influence awakening in people’s minds.",
       "audioFile": "the_call_of_cthulhu_chapter_2.mp3"
     },
     {
-      "id": "3",
       "title": "The Tale of Inspector Legrasse - Part 1",
       "text": "Inspector Legrasse recounts the 1908 police raid on a cult in Louisiana. He discovers a monstrous idol and learns of the cult’s belief in ancient, cosmic entities that predate humanity.",
       "audioFile": "the_call_of_cthulhu_chapter_3.mp3"
     },
     {
-      "id": "4",
       "title": "The Tale of Inspector Legrasse - Part 2",
       "text": "Further parallels emerge between Legrasse’s findings and the bas-relief sculpture, linking Wilcox’s dreams to a broader, global cult connected to Cthulhu and his cosmic influence.",
       "audioFile": "the_call_of_cthulhu_chapter_4.mp3"
     },
     {
-      "id": "5",
       "title": "The Madness from the Sea - Part 1",
       "text": "Thurston reads a sailor’s diary describing a terrifying encounter with the sunken city of R’lyeh, where Cthulhu momentarily awakens. This firsthand account deepens the horror.",
       "audioFile": "the_call_of_cthulhu_chapter_5.mp3"
     },
     {
-      "id": "6",
       "title": "The Madness from the Sea - Part 2",
       "text": "As the story concludes, all the disparate threads converge — dreams, artifacts, and encounters — suggesting that Cthulhu still dreams and waits beneath the sea, ready to return.",
       "audioFile": "the_call_of_cthulhu_chapter_6.mp3"
