@@ -1,5 +1,5 @@
 //
-//  Audiobook.swift
+//  Book.swift
 //  summary_reader
 //
 //  Created by Serhii Miskiv on 12.04.2025.

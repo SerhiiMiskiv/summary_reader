@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 @Reducer
 struct BookFeature {
+    
     @ObservableState
     struct State: Equatable {
         var book: Book?

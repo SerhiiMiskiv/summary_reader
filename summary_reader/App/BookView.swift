@@ -1,3 +1,11 @@
+//
+//  BookView.swift
+//  summary_reader
+//
+//  Created by Serhii Miskiv on 13.04.2025.
+//
+
+
 import SwiftUI
 import ComposableArchitecture
 
@@ -23,15 +31,7 @@ struct BookView: View {
                     List {
                         Section(header: Text(book.title).font(.title2)) {
                             ForEach(book.chapters) { chapter in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(chapter.title)
-                                        .font(.headline)
-                                    Text(chapter.text)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
-                                }
-                                .padding(.vertical, 4)
+                                ChapterRowLink(chapter: chapter)
                             }
                         }
                     }
@@ -43,6 +43,35 @@ struct BookView: View {
         }
         .onAppear {
             store.send(.onAppear)
+        }
+    }
+}
+
+
+struct ChapterRowLink: View {
+    let chapter: Chapter
+
+    var body: some View {
+        NavigationLink(
+            destination: ChapterDetailView(
+                store: Store(
+                    initialState: ChapterPlayerFeature.State(
+                        chapter: chapter,
+                        isPlaying: false,
+                    ),
+                    reducer: { ChapterPlayerFeature() }
+                )
+            )
+        ) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(chapter.title)
+                    .font(.headline)
+                Text(chapter.text)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            .padding(.vertical, 4)
         }
     }
 }
