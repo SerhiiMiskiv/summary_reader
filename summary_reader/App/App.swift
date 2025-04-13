@@ -12,10 +12,11 @@ import ComposableArchitecture
 struct SummaryReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            BooksListView(
-                store: Store(initialState: BookListFeature.State()) {
-                    BookListFeature()
-                }
+            BookView(
+                store: Store(
+                    initialState: BookFeature.State(),
+                    reducer: { BookFeature() }
+                )
             )
         }
     }

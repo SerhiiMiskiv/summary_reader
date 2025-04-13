@@ -8,29 +8,33 @@
 import Foundation
 import ComposableArchitecture
 
+enum BookClientError: Error {
+    case fileNotFound
+}
+
 struct BookClient {
-    var loadBooks: @Sendable () async throws -> [AudioBook]
+    var loadBook: @Sendable () async throws -> Book
+}
+
+extension BookClient: DependencyKey {
+    static let liveValue = BookClient(
+        loadBook: {
+            guard let url = Bundle.main.url(
+                forResource: "the_call_of_cthulhu",
+                withExtension: "json") else {
+                throw BookClientError.fileNotFound
+            }
+
+            let data = try Data(contentsOf: url)
+            let book = try JSONDecoder().decode(Book.self, from: data)
+            return book
+        }
+    )
 }
 
 extension DependencyValues {
     var bookClient: BookClient {
-        get { self[BookClientKey.self] }
-        set { self[BookClientKey.self] = newValue }
+        get { self[BookClient.self] }
+        set { self[BookClient.self] = newValue }
     }
-}
-
-private enum BookClientKey: DependencyKey {
-    static let liveValue = BookClient(
-        loadBooks: {
-            guard let jsonURL = Bundle.main.url(forResource: "the_call_of_cthulhu", withExtension: "json") else {
-                fatalError("❌ JSON not found in bundle.")
-            }
-
-            let data = try Data(contentsOf: jsonURL)
-            let book = try JSONDecoder().decode(AudioBook.self, from: data)
-
-            print("✅ Loaded book:", book.title)
-            return [book]
-        }
-    )
 }
