@@ -36,13 +36,14 @@ struct BooksListView: View {
                         .listStyle(.plain)
                     }
                 }
+                .alert(
+                  self.store.scope(state: \.alert),
+                  dismiss: .alertDismissed
+                )
                 .navigationTitle("Summaries")
-//                           .alert(
-//                               store: store.scope(state: \.alert, action: { $0 })
-//                           )
-                           .task {
-                               await viewStore.send(.loadBooks).finish()
-                           }
+                .task {
+                    await viewStore.send(.loadBooks).finish()
+                }
             }
         }
     }

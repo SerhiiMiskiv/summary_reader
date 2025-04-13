@@ -64,12 +64,12 @@ struct BookListFeature {
 
         case let .booksResponse(.success(books)):
             state.books = books
-            print("Book Response success: \(books)")
             state.isLoading = false
             return .none
 
         case let .booksResponse(.failure(error)):
-            print("Book Response error: \(error)")
+            print("Error is \(error)")
+            
             state.isLoading = false
             state.alert = AlertState {
                 TextState("Failed to load books")
