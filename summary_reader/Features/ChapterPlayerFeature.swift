@@ -11,6 +11,7 @@ import AVFoundation
 
 @Reducer
 struct ChapterPlayerFeature {
+    
     @ObservableState
     struct State: Equatable {
         let chapters: [Chapter]
@@ -57,7 +58,7 @@ struct ChapterPlayerFeature {
                 
                 return .run { send in
                     var resolvedDuration: TimeInterval = 0
-
+                    
                     if !audioPlayer.isItemLoaded() {
                         if let url = Bundle.main.url(forResource: chapter.audioFile, withExtension: nil) {
                             let asset = AVURLAsset(url: url)
@@ -98,10 +99,7 @@ struct ChapterPlayerFeature {
                 
             case .pauseTapped:
                 state.isPlaying = false
-                return .run { _ in
-                    @Dependency(\.audioPlayer) var audioPlayer
-                    audioPlayer.pause()
-                }
+                return .run { _ in audioPlayer.pause() }
                 
             case let .progressUpdated(time):
                 state.playbackTime = time
@@ -113,17 +111,12 @@ struct ChapterPlayerFeature {
                 
             case let .setRate(rate):
                 state.playbackRate = rate
-                return .run { _ in
-                    audioPlayer.setRate(rate)
-                }
+                return .run { _ in audioPlayer.setRate(rate) }
                 
             case let .seek(to: position):
                 state.playbackTime = position
                 let rate = state.playbackRate
-                return .run { _ in
-                    @Dependency(\.audioPlayer) var audioPlayer
-                    audioPlayer.seek(position, rate)
-                }
+                return .run { _ in audioPlayer.seek(position, rate) }
                 
             case .skipForwardTapped:
                 let newTime = min(state.playbackTime + 10, state.duration)
@@ -134,42 +127,38 @@ struct ChapterPlayerFeature {
                 return .send(.seek(to: newTime))
                 
             case .playbackEnded:
-                state.isPlaying = false
-                state.playbackTime = 0
-                state.playbackRate = 1.0
-            
-                return .run { _ in
-                    @Dependency(\.audioPlayer) var audioPlayer
-                    audioPlayer.stop()
-                }
+                state.resetPlaybackState()
+                return .run { _ in audioPlayer.stop() }
                 
             case .previousChapter:
                 guard state.currentIndex > 0 else { return .none }
-
                 let previousIndex = state.currentIndex - 1
                 state.currentIndex = previousIndex
-                
-                state.isPlaying = false
-                state.playbackTime = 0
-                state.playbackRate = 1.0
-                state.duration = 0
-                
-                return .send(.playbackEnded)
-
+                state.resetPlaybackState()
+                return .concatenate(
+                    .send(.playbackEnded),
+                    .send(.playTapped)
+                )
                 
             case .nextChapter:
                 guard state.currentIndex + 1 < state.chapters.count else { return .none }
-
                 let nextIndex = state.currentIndex + 1
                 state.currentIndex = nextIndex
-                
-                state.isPlaying = false
-                state.playbackTime = 0
-                state.playbackRate = 1.0
-                state.duration = 0
-                
-                return .send(.playbackEnded)
+                state.resetPlaybackState()
+                return .concatenate(
+                    .send(.playbackEnded),
+                    .send(.playTapped)
+                )
             }
         }
+    }
+}
+
+private extension ChapterPlayerFeature.State {
+    mutating func resetPlaybackState() {
+        isPlaying = false
+        playbackTime = 0
+        duration = 0
+        playbackRate = 1.0
     }
 }
