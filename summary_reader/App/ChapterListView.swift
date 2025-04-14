@@ -28,13 +28,8 @@ struct ChaptersListView: View {
                         }
                     }
                 } else if let book = store.book {
-                    List {
-                        Section(header: Text(book.title).font(.title2)) {
-                            ForEach(book.chapters) { chapter in
-                                ChapterRowLink(chapter: chapter)
-                            }
-                        }
-                    }
+                    ChaptersList(book: book)
+
                 } else {
                     Text("No data available.")
                 }
@@ -47,8 +42,22 @@ struct ChaptersListView: View {
     }
 }
 
+private struct ChaptersList: View {
+    let book: Book
+    
+    var body: some View {
+        List {
+            Section(header: Text(book.title).font(.title2)) {
+                ForEach(book.chapters) { chapter in
+                    ChapterRowLink(chapter: chapter)
+                }
+            }
+        }
+    }
+}
 
-struct ChapterRowLink: View {
+
+private struct ChapterRowLink: View {
     let chapter: Chapter
 
     var body: some View {
