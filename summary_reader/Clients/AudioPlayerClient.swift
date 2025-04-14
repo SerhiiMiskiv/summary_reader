@@ -10,6 +10,8 @@ import AVFoundation
 import Combine
 import ComposableArchitecture
 
+// MARK: - Client
+
 struct AudioPlayerClient {
     var play: @Sendable (_ url: URL) async throws -> Void
     var playWithoutReplacing: @Sendable () -> Void
@@ -19,6 +21,8 @@ struct AudioPlayerClient {
     var setRate: @Sendable (_ rate: Double) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
 }
+
+// MARK: Dependency Key
 
 extension AudioPlayerClient: DependencyKey {
     static let liveValue: AudioPlayerClient = {
@@ -72,6 +76,8 @@ extension AudioPlayerClient: DependencyKey {
         )
     }()
 }
+
+// MARK: - Dependency Value
 
 extension DependencyValues {
     var audioPlayer: AudioPlayerClient {

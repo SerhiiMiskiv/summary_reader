@@ -8,11 +8,22 @@
 import SwiftUI
 import ComposableArchitecture
 
+// MARK: - Chapter Player View
+
 struct ChapterPlayerView: View {
     @Bindable var store: StoreOf<ChapterPlayerFeature>
+    
+    let coverImage: UIImage
 
     var body: some View {
         VStack(spacing: 24) {
+            Image(uiImage: coverImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 280)
+                .cornerRadius(16)
+                .shadow(radius: 6)
+            
             Text(store.currentChapter.title)
                 .font(.title2)
                 .bold()
@@ -23,19 +34,17 @@ struct ChapterPlayerView: View {
                 .multilineTextAlignment(.leading)
             
             Controls(store: store)
-
-            Spacer()
-
+            
             ProgressSlider(store: store)
         }
         .padding()
-        .navigationTitle("Now Playing")
-        .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
             store.send(.stop)
         }
     }
 }
+
+// MARK: - Controls
 
 private struct Controls: View {
     @Bindable var store: StoreOf<ChapterPlayerFeature>
@@ -89,6 +98,8 @@ private struct Controls: View {
     }
 }
 
+// MARK: - Playback Rate Button
+
 private struct PlaybackRateButton: View {
     let rate: Double
     let selectedRate: Double
@@ -108,6 +119,8 @@ private struct PlaybackRateButton: View {
         }
     }
 }
+
+// MARK: - Progress Slider
 
 private struct ProgressSlider: View {
     @Bindable var store: StoreOf<ChapterPlayerFeature>

@@ -12,9 +12,13 @@ enum BookClientError: Error {
     case fileNotFound
 }
 
+// MARK: - Client
+
 struct BookClient {
     var loadBook: @Sendable () async throws -> AudioBook
 }
+
+// MARK: - Dependency Key
 
 extension BookClient: DependencyKey {
     static let liveValue = BookClient(
@@ -31,6 +35,8 @@ extension BookClient: DependencyKey {
         }
     )
 }
+
+// MARK: - Dependency Value
 
 extension DependencyValues {
     var bookClient: BookClient {

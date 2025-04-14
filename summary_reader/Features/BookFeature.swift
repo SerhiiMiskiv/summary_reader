@@ -31,6 +31,9 @@ struct BookFeature {
 
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+                
             case .onAppear:
                 state.isLoading = true
                 state.error = nil
@@ -39,21 +42,18 @@ struct BookFeature {
                         Result {
                             try await bookClient.loadBook()
                         }
-                        .mapError { $0 as? BookClientError ?? .fileNotFound }
+                            .mapError { $0 as? BookClientError ?? .fileNotFound }
                     ))
                 }
-
+                
             case let .bookLoaded(.success(book)):
                 state.book = book
                 state.isLoading = false
                 return .none
-
+                
             case let .bookLoaded(.failure(error)):
                 state.error = error.localizedDescription
                 state.isLoading = false
-                return .none
-
-            case .binding:
                 return .none
             }
         }

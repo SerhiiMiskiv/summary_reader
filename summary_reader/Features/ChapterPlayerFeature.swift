@@ -38,6 +38,9 @@ struct ChapterPlayerFeature {
         case binding(BindingAction<State>)
         case play
         case startPlaying
+        
+        case observeProgress
+        case progressUpdated(TimeInterval)
 
         case pause
         case stop
@@ -48,9 +51,6 @@ struct ChapterPlayerFeature {
         case skipForward
         case skipBackward
         case seek(to: TimeInterval)
-        
-        case observeProgress
-        case progressUpdated(TimeInterval)
         
         case setRate(Double)
         
@@ -75,21 +75,6 @@ struct ChapterPlayerFeature {
                     .send(.observeProgress)
                 )
                 
-            case .calculateDuration:
-                let chapter = state.currentChapter
-                
-                return .run { send in
-                    let asset = AVURLAsset(url: chapter.audioFileURL)
-                    
-                    do {
-                        let cmDuration = try await asset.load(.duration)
-                        await send(.durationLoaded(cmDuration.seconds))
-                    } catch {
-                        print("Failed to load duration: \(error)")
-                        await send(.durationLoaded(0))
-                    }
-                }
-                
             case .startPlaying:
                 state.isPlaying = true
                 let chapter = state.currentChapter
@@ -111,14 +96,46 @@ struct ChapterPlayerFeature {
                     }
                 }
                 
+            case .observeProgress:
+                let duration = state.duration
+                return .run { send in
+                    for await time in audioPlayer.observeProgress() {
+                        await send(.progressUpdated(time))
+
+                        if duration > 0, abs(time - duration) < 0.25 {
+                            await send(.stop)
+                            break
+                        }
+                    }
+                }
+                
+            case let .progressUpdated(time):
+                state.playbackTime = time
+                return .none
+                
             case .pause:
                 state.isPlaying = false
                 state.playerState = .paused
                 return .run { _ in audioPlayer.pause() }
                 
-            case let .progressUpdated(time):
-                state.playbackTime = time
-                return .none
+            case .stop:
+                state.resetPlaybackState()
+                state.playerState = .stopped
+                return .run { _ in audioPlayer.stop() }
+                
+            case .calculateDuration:
+                let chapter = state.currentChapter
+                return .run { send in
+                    let asset = AVURLAsset(url: chapter.audioFileURL)
+                    
+                    do {
+                        let cmDuration = try await asset.load(.duration)
+                        await send(.durationLoaded(cmDuration.seconds))
+                    } catch {
+                        print("Failed to load duration: \(error)")
+                        await send(.durationLoaded(0))
+                    }
+                }
                 
             case let .durationLoaded(duration):
                 state.duration = duration
@@ -128,23 +145,19 @@ struct ChapterPlayerFeature {
                 state.playbackRate = rate
                 return .run { _ in audioPlayer.setRate(rate) }
                 
-            case let .seek(to: position):
-                state.playbackTime = position
-                let rate = state.playbackRate
-                return .run { _ in audioPlayer.seek(position, rate) }
-                
             case .skipForward:
                 let newTime = min(state.playbackTime + 10, state.duration)
+                print("New time \(newTime)")
                 return .send(.seek(to: newTime))
                 
             case .skipBackward:
                 let newTime = max(state.playbackTime - 5, 0)
                 return .send(.seek(to: newTime))
                 
-            case .stop:
-                state.resetPlaybackState()
-                state.playerState = .stopped
-                return .run { _ in audioPlayer.stop() }
+            case let .seek(to: position):
+                state.playbackTime = position
+                let rate = state.playbackRate
+                return .run { _ in audioPlayer.seek(position, rate) }
                 
             case .previousChapter:
                 guard state.currentIndex > 0 else { return .none }
@@ -165,19 +178,6 @@ struct ChapterPlayerFeature {
                     .send(.stop),
                     .send(.play)
                 )
-                
-            case .observeProgress:
-                let duration = state.duration
-                return .run { send in
-                    for await time in audioPlayer.observeProgress() {
-                        await send(.progressUpdated(time))
-
-                        if duration > 0, abs(time - duration) < 0.25 {
-                            await send(.stop)
-                            break
-                        }
-                    }
-                }
             }
         }
     }
