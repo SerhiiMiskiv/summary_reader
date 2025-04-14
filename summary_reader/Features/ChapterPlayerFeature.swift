@@ -13,27 +13,31 @@ import AVFoundation
 struct ChapterPlayerFeature {
     @ObservableState
     struct State: Equatable {
-        var chapter: Chapter
+        let chapters: [Chapter]
+        var currentIndex: Int = 0
+        var currentChapter: Chapter {
+            chapters[currentIndex]
+        }
+        
         var isPlaying: Bool = false
         var playbackTime: TimeInterval = 0
         var duration: TimeInterval = 0
         var playbackRate: Double = 1.0
-        var chapterIndex: Int = 0
-        var totalChapters: Int = 0
     }
     
     enum Action: Equatable, BindableAction {
         case binding(BindingAction<State>)
         case playTapped
         case pauseTapped
-        case stopTapped
+        case playbackEnded
         case skipForwardTapped
         case skipBackwardTapped
         case seek(to: TimeInterval)
         case progressUpdated(TimeInterval)
         case durationLoaded(TimeInterval)
         case setRate(Double)
-        case playbackEnded
+        case nextChapter
+        case previousChapter
     }
     
     @Dependency(\.audioPlayer) var audioPlayer
@@ -48,8 +52,10 @@ struct ChapterPlayerFeature {
                 
             case .playTapped:
                 state.isPlaying = true
+                let chapter = state.currentChapter
+                let rate = state.playbackRate
                 
-                return .run { [chapter = state.chapter, rate = state.playbackRate] send in
+                return .run { send in
                     var resolvedDuration: TimeInterval = 0
 
                     if !audioPlayer.isItemLoaded() {
@@ -93,13 +99,8 @@ struct ChapterPlayerFeature {
             case .pauseTapped:
                 state.isPlaying = false
                 return .run { _ in
+                    @Dependency(\.audioPlayer) var audioPlayer
                     audioPlayer.pause()
-                }
-                
-            case .stopTapped:
-                state.isPlaying = false
-                return .run { _ in
-                    audioPlayer.stop()
                 }
                 
             case let .progressUpdated(time):
@@ -141,6 +142,33 @@ struct ChapterPlayerFeature {
                     @Dependency(\.audioPlayer) var audioPlayer
                     audioPlayer.stop()
                 }
+                
+            case .previousChapter:
+                guard state.currentIndex > 0 else { return .none }
+
+                let previousIndex = state.currentIndex - 1
+                state.currentIndex = previousIndex
+                
+                state.isPlaying = false
+                state.playbackTime = 0
+                state.playbackRate = 1.0
+                state.duration = 0
+                
+                return .send(.playbackEnded)
+
+                
+            case .nextChapter:
+                guard state.currentIndex + 1 < state.chapters.count else { return .none }
+
+                let nextIndex = state.currentIndex + 1
+                state.currentIndex = nextIndex
+                
+                state.isPlaying = false
+                state.playbackTime = 0
+                state.playbackRate = 1.0
+                state.duration = 0
+                
+                return .send(.playbackEnded)
             }
         }
     }

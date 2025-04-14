@@ -44,12 +44,15 @@ struct ChaptersListView: View {
 
 private struct ChaptersList: View {
     let book: Book
-    
+
     var body: some View {
         List {
             Section(header: Text(book.title).font(.title2)) {
-                ForEach(book.chapters) { chapter in
-                    ChapterRowLink(chapter: chapter)
+                ForEach(Array(book.chapters.enumerated()), id: \.1.id) { index, chapter in
+                    ChapterRowLink(
+                        chapters: book.chapters,
+                        currentIndex: index,
+                    )
                 }
             }
         }
@@ -58,24 +61,26 @@ private struct ChaptersList: View {
 
 
 private struct ChapterRowLink: View {
-    let chapter: Chapter
+    let chapters: [Chapter]
+    var currentIndex: Int
 
     var body: some View {
         NavigationLink(
             destination: ChapterPlayerView(
                 store: Store(
                     initialState: ChapterPlayerFeature.State(
-                        chapter: chapter,
+                        chapters: chapters,
+                        currentIndex: currentIndex,
                         isPlaying: false,
                     ),
                     reducer: { ChapterPlayerFeature() }
-                )
+                ),
             )
         ) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(chapter.title)
+                Text(chapters[currentIndex].title)
                     .font(.headline)
-                Text(chapter.text)
+                Text(chapters[currentIndex].text)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
