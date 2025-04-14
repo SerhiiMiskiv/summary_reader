@@ -13,14 +13,14 @@ struct BookFeature {
     
     @ObservableState
     struct State: Equatable {
-        var book: Book?
+        var book: AudioBook?
         var isLoading: Bool = false
         var error: String?
     }
 
     enum Action: Equatable, BindableAction {
         case onAppear
-        case bookLoaded(Result<Book, BookClientError>)
+        case bookLoaded(Result<AudioBook, BookClientError>)
         case binding(BindingAction<State>)
     }
 

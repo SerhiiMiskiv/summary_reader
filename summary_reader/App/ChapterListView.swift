@@ -43,7 +43,7 @@ struct ChaptersListView: View {
 }
 
 private struct ChaptersList: View {
-    let book: Book
+    let book: AudioBook
 
     var body: some View {
         List {

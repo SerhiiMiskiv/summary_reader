@@ -37,11 +37,14 @@ struct ChapterPlayerFeature {
     enum Action: Equatable, BindableAction {
         case binding(BindingAction<State>)
         case playTapped
+        case calculateDuration
+        case startPlaying
         case pauseTapped
         case playbackEnded
         case skipForwardTapped
         case skipBackwardTapped
         case seek(to: TimeInterval)
+        case observeProgress
         case progressUpdated(TimeInterval)
         case durationLoaded(TimeInterval)
         case setRate(Double)
@@ -60,51 +63,45 @@ struct ChapterPlayerFeature {
                 return .none
                 
             case .playTapped:
-                state.isPlaying = true
-                let chapter = state.currentChapter
-                let rate = state.playbackRate
+                return .concatenate(
+                    .send(.calculateDuration),
+                    .send(.startPlaying),
+                    .send(.observeProgress)
+                )
                 
-                let shouldReplaceItem = state.playerState == .newlyAdded ||
-                                        state.playerState == .stopped
+            case .calculateDuration:
+                let chapter = state.currentChapter
                 
                 return .run { send in
-                    var resolvedDuration: TimeInterval = 0
+                    let asset = AVURLAsset(url: chapter.audioFileURL)
                     
+                    do {
+                        let cmDuration = try await asset.load(.duration)
+                        await send(.durationLoaded(cmDuration.seconds))
+                    } catch {
+                        print("Failed to load duration: \(error)")
+                        await send(.durationLoaded(0))
+                    }
+                }
+                
+            case .startPlaying:
+                state.isPlaying = true
+                let chapter = state.currentChapter
+                let playerState = state.playerState
+                
+                let shouldReplaceItem = playerState == .newlyAdded || playerState == .stopped
+                
+                return .run { send in
                     if shouldReplaceItem {
-                        if let url = Bundle.main.url(forResource: chapter.audioFile, withExtension: nil) {
-                            let asset = AVURLAsset(url: url)
-                            
-                            do {
-                                let cmDuration = try await asset.load(.duration)
-                                resolvedDuration = cmDuration.seconds
-                                await send(.durationLoaded(cmDuration.seconds))
-                            } catch {
-                                print("Failed to load duration: \(error)")
-                            }
-                            
-                            do {
-                                try await audioPlayer.play(url)
-                            } catch {
-                                print("Failed to play audio:", error)
-                                return
-                            }
-                        } else {
-                            print("Audio file not found in bundle.")
+                        do {
+                            try await audioPlayer.play(chapter.audioFileURL)
+                        } catch {
+                            print("Failed to play audio:", error)
                             return
                         }
-                    } else {
-                        audioPlayer.playWithoutReplacing()
                     }
-                    
-                    audioPlayer.setRate(rate)
-                    
-                    for await time in audioPlayer.observeProgress() {
-                        await send(.progressUpdated(time))
-                        
-                        if resolvedDuration > 0, abs(time - resolvedDuration) < 0.25 {
-                            await send(.playbackEnded)
-                            break
-                        }
+                    else {
+                        audioPlayer.playWithoutReplacing()
                     }
                 }
                 
@@ -162,6 +159,20 @@ struct ChapterPlayerFeature {
                     .send(.playbackEnded),
                     .send(.playTapped)
                 )
+                
+            case .observeProgress:
+                let duration = state.duration
+
+                return .run { send in
+                    for await time in audioPlayer.observeProgress() {
+                        await send(.progressUpdated(time))
+
+                        if duration > 0, abs(time - duration) < 0.25 {
+                            await send(.playbackEnded)
+                            break
+                        }
+                    }
+                }
             }
         }
     }

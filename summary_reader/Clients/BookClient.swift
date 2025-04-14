@@ -13,7 +13,7 @@ enum BookClientError: Error {
 }
 
 struct BookClient {
-    var loadBook: @Sendable () async throws -> Book
+    var loadBook: @Sendable () async throws -> AudioBook
 }
 
 extension BookClient: DependencyKey {
@@ -26,7 +26,7 @@ extension BookClient: DependencyKey {
             }
 
             let data = try Data(contentsOf: url)
-            let book = try JSONDecoder().decode(Book.self, from: data)
+            let book = try JSONDecoder().decode(AudioBook.self, from: data)
             return book
         }
     )
