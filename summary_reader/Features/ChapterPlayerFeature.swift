@@ -12,6 +12,13 @@ import AVFoundation
 @Reducer
 struct ChapterPlayerFeature {
     
+    enum PlayerState: Equatable {
+        case newlyAdded
+        case playing
+        case paused
+        case stopped
+    }
+    
     @ObservableState
     struct State: Equatable {
         let chapters: [Chapter]
@@ -20,6 +27,7 @@ struct ChapterPlayerFeature {
             chapters[currentIndex]
         }
         
+        var playerState: PlayerState = .newlyAdded
         var isPlaying: Bool = false
         var playbackTime: TimeInterval = 0
         var duration: TimeInterval = 0
@@ -56,10 +64,13 @@ struct ChapterPlayerFeature {
                 let chapter = state.currentChapter
                 let rate = state.playbackRate
                 
+                let shouldReplaceItem = state.playerState == .newlyAdded ||
+                                        state.playerState == .stopped
+                
                 return .run { send in
                     var resolvedDuration: TimeInterval = 0
                     
-                    if !audioPlayer.isItemLoaded() {
+                    if shouldReplaceItem {
                         if let url = Bundle.main.url(forResource: chapter.audioFile, withExtension: nil) {
                             let asset = AVURLAsset(url: url)
                             
@@ -99,6 +110,7 @@ struct ChapterPlayerFeature {
                 
             case .pauseTapped:
                 state.isPlaying = false
+                state.playerState = .paused
                 return .run { _ in audioPlayer.pause() }
                 
             case let .progressUpdated(time):
@@ -128,6 +140,7 @@ struct ChapterPlayerFeature {
                 
             case .playbackEnded:
                 state.resetPlaybackState()
+                state.playerState = .stopped
                 return .run { _ in audioPlayer.stop() }
                 
             case .previousChapter:

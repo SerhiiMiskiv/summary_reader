@@ -18,19 +18,17 @@ struct AudioPlayerClient {
     var seek: @Sendable (_ time: TimeInterval, _ rate: Double) -> Void
     var setRate: @Sendable (_ rate: Double) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
-    var isItemLoaded: @Sendable () -> Bool
 }
 
 extension AudioPlayerClient: DependencyKey {
     static let liveValue: AudioPlayerClient = {
         let player = AVPlayer()
         let progressSubject = PassthroughSubject<TimeInterval, Never>()
-        var timeObserverToken: Any?
-
-        // Add a periodic time observer
-        timeObserverToken = player.addPeriodicTimeObserver(
-            forInterval: CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC)),
-            queue: .main
+        var timeObserverToken = player.addPeriodicTimeObserver(
+            forInterval: CMTime(
+                seconds: 0.5,
+                preferredTimescale: CMTimeScale(NSEC_PER_SEC)),
+                queue: .main
         ) { time in
             progressSubject.send(time.seconds)
         }
@@ -70,9 +68,6 @@ extension AudioPlayerClient: DependencyKey {
                         cancellable.cancel()
                     }
                 }
-            },
-            isItemLoaded: {
-                player.currentItem != nil
             }
         )
     }()
