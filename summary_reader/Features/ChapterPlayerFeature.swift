@@ -36,18 +36,24 @@ struct ChapterPlayerFeature {
     
     enum Action: Equatable, BindableAction {
         case binding(BindingAction<State>)
-        case playTapped
-        case calculateDuration
+        case play
         case startPlaying
-        case pauseTapped
-        case playbackEnded
-        case skipForwardTapped
-        case skipBackwardTapped
+
+        case pause
+        case stop
+
+        case calculateDuration
+        case durationLoaded(TimeInterval)
+
+        case skipForward
+        case skipBackward
         case seek(to: TimeInterval)
+        
         case observeProgress
         case progressUpdated(TimeInterval)
-        case durationLoaded(TimeInterval)
+        
         case setRate(Double)
+        
         case nextChapter
         case previousChapter
     }
@@ -62,7 +68,7 @@ struct ChapterPlayerFeature {
             case .binding:
                 return .none
                 
-            case .playTapped:
+            case .play:
                 return .concatenate(
                     .send(.calculateDuration),
                     .send(.startPlaying),
@@ -105,7 +111,7 @@ struct ChapterPlayerFeature {
                     }
                 }
                 
-            case .pauseTapped:
+            case .pause:
                 state.isPlaying = false
                 state.playerState = .paused
                 return .run { _ in audioPlayer.pause() }
@@ -127,15 +133,15 @@ struct ChapterPlayerFeature {
                 let rate = state.playbackRate
                 return .run { _ in audioPlayer.seek(position, rate) }
                 
-            case .skipForwardTapped:
+            case .skipForward:
                 let newTime = min(state.playbackTime + 10, state.duration)
                 return .send(.seek(to: newTime))
                 
-            case .skipBackwardTapped:
+            case .skipBackward:
                 let newTime = max(state.playbackTime - 5, 0)
                 return .send(.seek(to: newTime))
                 
-            case .playbackEnded:
+            case .stop:
                 state.resetPlaybackState()
                 state.playerState = .stopped
                 return .run { _ in audioPlayer.stop() }
@@ -146,8 +152,8 @@ struct ChapterPlayerFeature {
                 state.currentIndex = previousIndex
                 state.resetPlaybackState()
                 return .concatenate(
-                    .send(.playbackEnded),
-                    .send(.playTapped)
+                    .send(.stop),
+                    .send(.play)
                 )
                 
             case .nextChapter:
@@ -156,19 +162,18 @@ struct ChapterPlayerFeature {
                 state.currentIndex = nextIndex
                 state.resetPlaybackState()
                 return .concatenate(
-                    .send(.playbackEnded),
-                    .send(.playTapped)
+                    .send(.stop),
+                    .send(.play)
                 )
                 
             case .observeProgress:
                 let duration = state.duration
-
                 return .run { send in
                     for await time in audioPlayer.observeProgress() {
                         await send(.progressUpdated(time))
 
                         if duration > 0, abs(time - duration) < 0.25 {
-                            await send(.playbackEnded)
+                            await send(.stop)
                             break
                         }
                     }

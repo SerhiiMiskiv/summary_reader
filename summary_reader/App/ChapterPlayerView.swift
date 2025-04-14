@@ -32,7 +32,7 @@ struct ChapterPlayerView: View {
         .navigationTitle("Now Playing")
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
-            store.send(.playbackEnded)
+            store.send(.stop)
         }
     }
 }
@@ -50,19 +50,19 @@ private struct Controls: View {
                 }
 
                 Button(action: {
-                    store.send(.skipBackwardTapped)
+                    store.send(.skipBackward)
                 }) {
                     Image(systemName: "gobackward.5")
                 }
 
                 Button(action: {
-                    store.send(store.isPlaying ? .pauseTapped : .playTapped)
+                    store.send(store.isPlaying ? .pause : .play)
                 }) {
                     Image(systemName: store.isPlaying ? "pause.fill" : "play.fill")
                 }
 
                 Button(action: {
-                    store.send(.skipForwardTapped)
+                    store.send(.skipForward)
                 }) {
                     Image(systemName: "goforward.10")
                 }
@@ -128,7 +128,7 @@ private struct ProgressSlider: View {
                 onEditingChanged: { editing in
                     isSeeking = editing
                     if editing {
-                        store.send(.pauseTapped)
+                        store.send(.pause)
                     } else {
                         store.send(.seek(to: seekPosition))
                     }
