@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct SummaryReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            BookView(
+            ChaptersListView(
                 store: Store(
                     initialState: BookFeature.State(),
                     reducer: { BookFeature() }

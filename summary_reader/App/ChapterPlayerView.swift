@@ -29,10 +29,6 @@ struct ChapterPlayerView: View {
                 .multilineTextAlignment(.leading)
 
             VStack(spacing: 12) {
-                Text("Playback: \(Int(store.playbackTime))s")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-
                 HStack(spacing: 32) {
                     Button(action: onPreviousTapped) {
                         Image(systemName: "backward.fill")
@@ -109,7 +105,7 @@ struct ChapterPlayerView: View {
         .navigationTitle("Now Playing")
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
-            store.send(.pauseTapped)
+            store.send(.stopTapped)
         }
     }
 }

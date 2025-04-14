@@ -15,11 +15,10 @@ struct AudioPlayerClient {
     var playWithoutReplacing: @Sendable () -> Void
     var pause: @Sendable () -> Void
     var stop: @Sendable () -> Void
-    var seek: @Sendable (_ time: TimeInterval) -> Void
+    var seek: @Sendable (_ time: TimeInterval, _ rate: Double) -> Void
     var setRate: @Sendable (_ rate: Double) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
     var isItemLoaded: @Sendable () -> Bool
-    var debugRate: @Sendable () -> Double
 }
 
 extension AudioPlayerClient: DependencyKey {
@@ -52,9 +51,11 @@ extension AudioPlayerClient: DependencyKey {
                 player.pause()
                 player.replaceCurrentItem(with: nil)
             },
-            seek: { time in
+            seek: { time, rate in
                 let cmTime = CMTime(seconds: time, preferredTimescale: 1)
-                player.seek(to: cmTime)
+                player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                    player.rate = Float(rate)
+                }
             },
             setRate: { rate in
                 player.rate = Float(rate)
@@ -72,9 +73,6 @@ extension AudioPlayerClient: DependencyKey {
             },
             isItemLoaded: {
                 player.currentItem != nil
-            },
-            debugRate: {
-                Double(player.rate)
             }
         )
     }()

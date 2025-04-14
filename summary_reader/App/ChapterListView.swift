@@ -9,7 +9,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct BookView: View {
+struct ChaptersListView: View {
     @Bindable var store: StoreOf<BookFeature>
 
     var body: some View {
@@ -53,7 +53,7 @@ struct ChapterRowLink: View {
 
     var body: some View {
         NavigationLink(
-            destination: ChapterDetailView(
+            destination: ChapterPlayerView(
                 store: Store(
                     initialState: ChapterPlayerFeature.State(
                         chapter: chapter,
