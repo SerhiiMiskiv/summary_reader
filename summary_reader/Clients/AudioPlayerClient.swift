@@ -12,11 +12,14 @@ import ComposableArchitecture
 
 struct AudioPlayerClient {
     var play: @Sendable (_ url: URL) async throws -> Void
+    var playWithoutReplacing: @Sendable () -> Void
     var pause: @Sendable () -> Void
     var stop: @Sendable () -> Void
     var seek: @Sendable (_ time: TimeInterval) -> Void
     var setRate: @Sendable (_ rate: Double) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
+    var isItemLoaded: @Sendable () -> Bool
+    var debugRate: @Sendable () -> Double
 }
 
 extension AudioPlayerClient: DependencyKey {
@@ -25,7 +28,7 @@ extension AudioPlayerClient: DependencyKey {
         let progressSubject = PassthroughSubject<TimeInterval, Never>()
         var timeObserverToken: Any?
 
-        // Add a periodic time observer for progress
+        // Add a periodic time observer
         timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC)),
             queue: .main
@@ -37,6 +40,9 @@ extension AudioPlayerClient: DependencyKey {
             play: { url in
                 let item = AVPlayerItem(url: url)
                 player.replaceCurrentItem(with: item)
+                player.play()
+            },
+            playWithoutReplacing: {
                 player.play()
             },
             pause: {
@@ -63,6 +69,12 @@ extension AudioPlayerClient: DependencyKey {
                         cancellable.cancel()
                     }
                 }
+            },
+            isItemLoaded: {
+                player.currentItem != nil
+            },
+            debugRate: {
+                Double(player.rate)
             }
         )
     }()

@@ -7,48 +7,71 @@
 
 import Foundation
 import ComposableArchitecture
+import AVFoundation
 
 @Reducer
 struct ChapterPlayerFeature {
-    
     @ObservableState
     struct State: Equatable {
         let chapter: Chapter
-        var isPlaying: Bool
+        var isPlaying: Bool = false
         var playbackTime: TimeInterval = 0
         var duration: TimeInterval = 0
         var playbackRate: Double = 1.0
     }
     
-    enum Action {
+    enum Action: Equatable, BindableAction {
+        case binding(BindingAction<State>)
         case playTapped
         case pauseTapped
         case stopTapped
+        case skipForwardTapped
+        case skipBackwardTapped
+        case seek(to: TimeInterval)
         case progressUpdated(TimeInterval)
+        case durationLoaded(TimeInterval)
         case setRate(Double)
     }
     
     @Dependency(\.audioPlayer) var audioPlayer
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+                
             case .playTapped:
                 state.isPlaying = true
-                return .run { [url = state.chapter.audioFile] send in
-                    guard let url = Bundle.main.url(
-                        forResource: url,
-                        withExtension: nil
-                    ) else {
-                        return
+                return .run { [chapter = state.chapter, rate = state.playbackRate] send in
+                    if !audioPlayer.isItemLoaded() {
+                        if let url = Bundle.main.url(forResource: chapter.audioFile, withExtension: nil) {
+                            let asset = AVURLAsset(url: url)
+                            
+                            do {
+                                let cmDuration = try await asset.load(.duration)
+                                await send(.durationLoaded(cmDuration.seconds))
+                            } catch {
+                                print("Failed to load duration: \(error)")
+                            }
+                            
+                            do {
+                                try await audioPlayer.play(url)
+                            } catch {
+                                print("Failed to play audio:", error)
+                                return
+                            }
+                        } else {
+                            print("Audio file not found in bundle.")
+                            return
+                        }
+                    } else {
+                        audioPlayer.playWithoutReplacing()
                     }
                     
-                    do {
-                        try await audioPlayer.play(url)
-                    } catch {
-                        print("Failed to play audio:", error)
-                        return
-                    }
+                    audioPlayer.setRate(rate)
                     
                     for await time in audioPlayer.observeProgress() {
                         await send(.progressUpdated(time))
@@ -57,17 +80,22 @@ struct ChapterPlayerFeature {
                 
             case .pauseTapped:
                 state.isPlaying = false
-                audioPlayer.pause()
-                return .none
+                return .run { _ in
+                    audioPlayer.pause()
+                }
                 
             case .stopTapped:
                 state.isPlaying = false
-                state.playbackTime = 0
-                audioPlayer.stop()
-                return .none
+                return .run { _ in
+                    audioPlayer.stop()
+                }
                 
             case let .progressUpdated(time):
                 state.playbackTime = time
+                return .none
+                
+            case let .durationLoaded(duration):
+                state.duration = duration
                 return .none
                 
             case let .setRate(rate):
@@ -75,6 +103,21 @@ struct ChapterPlayerFeature {
                 return .run { _ in
                     audioPlayer.setRate(rate)
                 }
+                
+            case let .seek(to: position):
+                state.playbackTime = position
+                return .run { _ in
+                    audioPlayer.seek(position)
+                    audioPlayer.playWithoutReplacing()
+                }
+                
+            case .skipForwardTapped:
+                let newTime = min(state.playbackTime + 10, state.duration)
+                return .send(.seek(to: newTime))
+                
+            case .skipBackwardTapped:
+                let newTime = max(state.playbackTime - 5, 0)
+                return .send(.seek(to: newTime))
             }
         }
     }
