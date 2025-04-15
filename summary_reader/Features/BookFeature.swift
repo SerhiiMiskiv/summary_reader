@@ -42,7 +42,7 @@ struct BookFeature {
                         Result {
                             try await bookClient.loadBook()
                         }
-                            .mapError { $0 as? BookClientError ?? .fileNotFound }
+                        .mapError { $0 as? BookClientError ?? .fileNotFound }
                     ))
                 }
                 

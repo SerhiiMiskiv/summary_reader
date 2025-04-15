@@ -13,13 +13,3 @@ struct Chapter: Decodable, Equatable, Identifiable {
     let text: String
     let audioFile: String
 }
-
-extension Chapter {
-    var audioFileURL: URL {
-        guard let url = Bundle.main.url(forResource: audioFile, withExtension: nil) else {
-            fatalError("Audio file not found in bundle.")
-        }
-        
-        return url
-    }
-}

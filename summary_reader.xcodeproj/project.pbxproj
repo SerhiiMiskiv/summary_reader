@@ -53,13 +53,13 @@
 		55F0B94C2DAE916A00C38644 /* Exceptions for "summary_reader" folder in "summary_readerTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Clients/AudioFileClient.swift,
 				Clients/AudioPlayerClient.swift,
 				Clients/BookClient.swift,
 				Features/BookFeature.swift,
 				Features/ChapterPlayerFeature.swift,
 				Models/AudioBook.swift,
 				Models/Chapter.swift,
-				Views/ChapterPlayerView.swift,
 			);
 			target = 55081B6F2DAABFFA00BE035E /* summary_readerTests */;
 		};

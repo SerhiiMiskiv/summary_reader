@@ -9,6 +9,14 @@ import Foundation
 import ComposableArchitecture
 import AVFoundation
 
+// MARK: - Error
+
+enum ChapterPlayerError: Equatable {
+    case genericPlayerError(String)
+}
+
+// MARK: - Reducer
+
 @Reducer
 struct ChapterPlayerFeature {
     
@@ -56,9 +64,12 @@ struct ChapterPlayerFeature {
         
         case nextChapter
         case previousChapter
+        
+        case error(ChapterPlayerError)
     }
     
     @Dependency(\.audioPlayer) var audioPlayer
+    @Dependency(\.audioFileClient) var audioFileClient
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -69,11 +80,7 @@ struct ChapterPlayerFeature {
                 return .none
                 
             case .play:
-                return .concatenate(
-                    .send(.calculateDuration),
-                    .send(.startPlaying),
-                    .send(.observeProgress)
-                )
+                return .send(.calculateDuration)
                 
             case .startPlaying:
                 state.isPlaying = true
@@ -85,24 +92,29 @@ struct ChapterPlayerFeature {
                 return .run { send in
                     if shouldReplaceItem {
                         do {
-                            try await audioPlayer.play(chapter.audioFileURL)
-                        } catch {
-                            print("Failed to play audio:", error)
-                            return
+                            let url = try await audioFileClient.getAudioFileURL(chapter)
+                            try await audioPlayer.play(url)
+                        }
+                        catch {
+                            await send(.error(.genericPlayerError(error.localizedDescription)))
                         }
                     }
                     else {
                         audioPlayer.playWithoutReplacing()
                     }
+                    
+                    await send(.observeProgress)
                 }
                 
             case .observeProgress:
                 let duration = state.duration
                 return .run { send in
                     for await time in audioPlayer.observeProgress() {
+                        print("Progress updated to \(time)")
                         await send(.progressUpdated(time))
-
+                        print("Checking if we need to stop")
                         if duration > 0, abs(time - duration) < 0.25 {
+                            print("Sending stop")
                             await send(.stop)
                             break
                         }
@@ -126,20 +138,20 @@ struct ChapterPlayerFeature {
             case .calculateDuration:
                 let chapter = state.currentChapter
                 return .run { send in
-                    let asset = AVURLAsset(url: chapter.audioFileURL)
-                    
                     do {
-                        let cmDuration = try await asset.load(.duration)
-                        await send(.durationLoaded(cmDuration.seconds))
-                    } catch {
-                        print("Failed to load duration: \(error)")
-                        await send(.durationLoaded(0))
+                        let url = try await audioFileClient.getAudioFileURL(chapter)
+                        let duration = try await audioFileClient.calculateAudioFileDuration(url)
+                        await send(.durationLoaded(duration))
+                    }
+                    catch {
+                        await send(.error(.genericPlayerError(error.localizedDescription)))
                     }
                 }
                 
-            case let .durationLoaded(duration):
-                state.duration = duration
-                return .none
+            case let .durationLoaded(newDuration):
+                print("Duration loaded: \(newDuration)")
+                state.duration = newDuration
+                return .send(.startPlaying)
                 
             case let .setRate(rate):
                 state.playbackRate = rate
@@ -178,6 +190,10 @@ struct ChapterPlayerFeature {
                     .send(.stop),
                     .send(.play)
                 )
+                
+            case let .error(error):
+                print("Received error: \(error)")
+                return .none
             }
         }
     }
