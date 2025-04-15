@@ -7,31 +7,70 @@
 
 import Testing
 import ComposableArchitecture
+
 @testable import summary_reader
 
-extension BookClient {
-    static let successMock = BookClient(
-        loadBook: {
-            .init(
-                id: "book-id",
-                title: "Test Title",
-                author: "Test Author",
-                coverImage: "cover.jpg",
-                chapters: []
-            )
-        }
-    )
+@MainActor
+struct BookFeatureTests {
 
-    static let failureMock = BookClient(
-        loadBook: {
-            throw BookClientError.fileNotFound
+    @Test
+    func testSuccessfulAudioBookFetch() async {
+        let mockAudioBook = AudioBook(
+            id: "1",
+            title: "Test Title",
+            author: "test Author",
+            coverImage: "some_image.jpg",
+            chapters: []
+        )
+        
+        let store = TestStore(
+            initialState: BookFeature.State(),
+            reducer: {
+                BookFeature()
+            },
+            withDependencies: {
+                $0.bookClient.loadBook = {
+                    mockAudioBook
+                }
+            }
+        )
+        
+        await store.send(.onAppear) {
+            $0.isLoading = true
+            $0.error = nil
         }
-    )
-}
-
-struct summary_readerTests {
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+        
+        await store.receive(.bookLoaded(.success(mockAudioBook))) {
+            $0.isLoading = false
+            $0.error = nil
+            $0.book = mockAudioBook
+        }
     }
-
+    
+    @Test
+    func testFailedlAudioBookFetch() async {
+        let error: BookClientError = .fileNotFound
+        
+        let store = TestStore(
+            initialState: BookFeature.State(),
+            reducer: {
+                BookFeature()
+            },
+            withDependencies: {
+                $0.bookClient.loadBook = {
+                    throw error
+                }
+            }
+        )
+        
+        await store.send(.onAppear) {
+            $0.isLoading = true
+            $0.error = nil
+        }
+        
+        await store.receive(.bookLoaded(.failure(error))) {
+            $0.isLoading = false
+            $0.error = error.localizedDescription
+        }
+    }
 }

@@ -49,9 +49,28 @@
 		55F0B9162DAB073900C38644 /* the_call_of_cthulhu_chapter_cover.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = the_call_of_cthulhu_chapter_cover.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		55F0B94C2DAE916A00C38644 /* Exceptions for "summary_reader" folder in "summary_readerTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Clients/AudioPlayerClient.swift,
+				Clients/BookClient.swift,
+				Features/BookFeature.swift,
+				Features/ChapterPlayerFeature.swift,
+				Models/AudioBook.swift,
+				Models/Chapter.swift,
+				Views/ChapterPlayerView.swift,
+			);
+			target = 55081B6F2DAABFFA00BE035E /* summary_readerTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		55081B652DAABFF900BE035E /* summary_reader */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				55F0B94C2DAE916A00C38644 /* Exceptions for "summary_reader" folder in "summary_readerTests" target */,
+			);
 			path = summary_reader;
 			sourceTree = "<group>";
 		};
