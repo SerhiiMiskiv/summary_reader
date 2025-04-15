@@ -110,11 +110,8 @@ struct ChapterPlayerFeature {
                 let duration = state.duration
                 return .run { send in
                     for await time in audioPlayer.observeProgress() {
-                        print("Progress updated to \(time)")
                         await send(.progressUpdated(time))
-                        print("Checking if we need to stop")
                         if duration > 0, abs(time - duration) < 0.25 {
-                            print("Sending stop")
                             await send(.stop)
                             break
                         }
@@ -149,7 +146,6 @@ struct ChapterPlayerFeature {
                 }
                 
             case let .durationLoaded(newDuration):
-                print("Duration loaded: \(newDuration)")
                 state.duration = newDuration
                 return .send(.startPlaying)
                 
@@ -159,7 +155,6 @@ struct ChapterPlayerFeature {
                 
             case .skipForward:
                 let newTime = min(state.playbackTime + 10, state.duration)
-                print("New time \(newTime)")
                 return .send(.seek(to: newTime))
                 
             case .skipBackward:
