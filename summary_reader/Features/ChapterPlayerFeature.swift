@@ -6,14 +6,8 @@
 //
 
 import Foundation
-import ComposableArchitecture
 import AVFoundation
-
-// MARK: - Error
-
-enum ChapterPlayerError: Equatable {
-    case genericPlayerError(String)
-}
+import ComposableArchitecture
 
 // MARK: - Reducer
 
@@ -40,6 +34,7 @@ struct ChapterPlayerFeature {
         var playbackTime: TimeInterval = 0
         var duration: TimeInterval = 0
         var playbackRate: Double = 1.0
+        var error: String?
     }
     
     enum Action: Equatable, BindableAction {
@@ -65,7 +60,7 @@ struct ChapterPlayerFeature {
         case nextChapter
         case previousChapter
         
-        case error(ChapterPlayerError)
+        case error(reason: String)
     }
     
     @Dependency(\.audioPlayer) var audioPlayer
@@ -96,7 +91,7 @@ struct ChapterPlayerFeature {
                             try await audioPlayer.play(url)
                         }
                         catch {
-                            await send(.error(.genericPlayerError(error.localizedDescription)))
+                            await send(.error(reason: error.localizedDescription))
                         }
                     }
                     else {
@@ -141,7 +136,7 @@ struct ChapterPlayerFeature {
                         await send(.durationLoaded(duration))
                     }
                     catch {
-                        await send(.error(.genericPlayerError(error.localizedDescription)))
+                        await send(.error(reason: error.localizedDescription))
                     }
                 }
                 
@@ -188,6 +183,7 @@ struct ChapterPlayerFeature {
                 
             case let .error(error):
                 print("Received error: \(error)")
+                state.error = error
                 return .none
             }
         }

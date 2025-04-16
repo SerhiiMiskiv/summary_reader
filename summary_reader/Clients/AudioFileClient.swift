@@ -11,9 +11,19 @@ import ComposableArchitecture
 
 // MARK: - Error
 
-enum AudioFileClientError: Error {
-    case fileNotFound
-    case durationNotCalculated(NSError)
+enum AudioFileClientError: LocalizedError, Equatable {
+    case fileNotFound(chapterID: String, fileName: String)
+    case durationNotCalculated(file: String, underlying: NSError)
+
+    var errorDescription: String? {
+        switch self {
+        case let .fileNotFound(chapterID, fileName):
+            return "Audio file '\(fileName)' for chapter '\(chapterID)' was not found in the app bundle."
+            
+        case let .durationNotCalculated(file, underlying):
+            return "Failed to calculate duration for '\(file)'. Underlying error: \(underlying.localizedDescription)"
+        }
+    }
 }
 
 // MARK: - Client
@@ -31,7 +41,10 @@ extension AudioFileClient: DependencyKey {
             guard let url = Bundle.main.url(
                 forResource: chapter.audioFile,
                 withExtension: nil) else {
-                throw AudioFileClientError.fileNotFound
+                throw AudioFileClientError.fileNotFound(
+                    chapterID: chapter.id,
+                    fileName: chapter.audioFile
+                )
             }
             
             return url
@@ -43,8 +56,10 @@ extension AudioFileClient: DependencyKey {
                 let cmDuration = try await asset.load(.duration)
                 return cmDuration.seconds
             } catch {
-                print("Failed to load duration: \(error)")
-                throw AudioFileClientError.durationNotCalculated(error as NSError)
+                throw AudioFileClientError.durationNotCalculated(
+                    file: url.lastPathComponent,
+                    underlying: error as NSError
+                )
             }
         }
     )
