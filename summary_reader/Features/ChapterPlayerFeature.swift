@@ -165,10 +165,13 @@ struct ChapterPlayerFeature {
                 return .send(.seek(to: newTime))
                 
             case let .seek(to: position):
+                state.playbackTime = position
                 return .run { _ in audioPlayer.seek(position) }
                 
             case .previousChapter:
-                guard state.currentIndex > 0 else { return .none }
+                guard state.currentIndex > 0 else {
+                    return .none
+                }
                 let previousIndex = state.currentIndex - 1
                 state.currentIndex = previousIndex
                 state.resetPlaybackState()
@@ -178,7 +181,10 @@ struct ChapterPlayerFeature {
                 )
                 
             case .nextChapter:
-                guard state.currentIndex + 1 < state.chapters.count else { return .none }
+                guard state.currentIndex + 1 < state.chapters.count else {
+                    return .none
+                }
+                
                 let nextIndex = state.currentIndex + 1
                 state.currentIndex = nextIndex
                 state.resetPlaybackState()
@@ -188,7 +194,6 @@ struct ChapterPlayerFeature {
                 )
                 
             case let .error(error):
-                print("Received error: \(error)")
                 state.error = error
                 return .none
             }

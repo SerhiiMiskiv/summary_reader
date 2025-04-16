@@ -23,15 +23,28 @@ struct ChapterPlayerView: View {
                 .font(.title2)
                 .bold()
                 .multilineTextAlignment(.center)
-
-            Text(store.currentChapter.text)
-                .font(.body)
-                .multilineTextAlignment(.leading)
             
-            ProgressSlider(store: store)
-            Controls(store: store)
+            if let errorMessage = store.error {
+                PlaybackErrorBanner(
+                    message: errorMessage,
+                    retryAction: {
+                        store.send(.play)
+                    }
+                )
+            } else {
+                Text(store.currentChapter.text)
+                    .font(.body)
+                    .multilineTextAlignment(.leading)
+                
+                ProgressSlider(store: store)
+                Controls(store: store)
+            }
+       
         }
         .padding()
+        .onAppear {
+            store.send(.play)
+        }
         .onDisappear {
             store.send(.stop)
         }
@@ -77,7 +90,7 @@ private struct LoadableImageView: View {
                 do {
                     image = try await book.loadCoverImage()
                 } catch {
-                    print("Failed to load image:", error.localizedDescription)
+                    debugPrint("Failed to load image:", error.localizedDescription)
                     self.error = error.localizedDescription
                 }
                 isLoading = false
@@ -201,6 +214,48 @@ private struct ProgressSlider: View {
         .padding(.top, 8)
     }
 }
+
+// MARK: - Error View
+
+private struct PlaybackErrorBanner: View {
+    let message: String
+    let retryAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.white)
+                    .font(.body)
+
+                Text(message)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+
+                Spacer()
+            }
+
+            Button("Try Again", action: retryAction)
+                .font(.footnote.weight(.medium))
+                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+                .background(Color.white.opacity(0.1))
+                .foregroundColor(.white)
+                .cornerRadius(6)
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.red.opacity(0.85))
+        )
+        .padding(.horizontal)
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+}
+
+// MARK: Private Extnesions
 
 private extension Double {
     var formattedRate: String {

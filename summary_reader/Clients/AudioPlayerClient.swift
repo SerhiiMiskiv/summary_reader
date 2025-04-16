@@ -42,25 +42,20 @@ extension AudioPlayerClient: DependencyKey {
             play: { url in
                 let item = AVPlayerItem(url: url)
                 player.replaceCurrentItem(with: item)
-                print("Play with replacing")
                 player.play()
             },
             playWithoutReplacing: {
-                print("Play without replacing")
                 player.play()
             },
             pause: {
-                print("Pause player")
                 player.pause()
             },
             stop: {
-                print("Stop player")
                 player.pause()
                 player.replaceCurrentItem(with: nil)
             },
             seek: { time in
                 let cmTime = CMTime(seconds: time, preferredTimescale: 1)
-                print("Seek position in player: \(time)")
                 player.seek(
                     to: cmTime,
                     toleranceBefore: .zero,
@@ -68,7 +63,6 @@ extension AudioPlayerClient: DependencyKey {
                 )
             },
             setRate: { rate in
-                print("Set rate: \(rate)")
                 player.rate = Float(rate)
             },
             observeProgress: {

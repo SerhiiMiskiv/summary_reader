@@ -46,7 +46,6 @@ extension AudioFileClient: DependencyKey {
                     fileName: chapter.audioFile
                 )
             }
-            
             return url
         },
         calculateAudioFileDuration: { url in
