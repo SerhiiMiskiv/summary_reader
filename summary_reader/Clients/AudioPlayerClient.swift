@@ -13,7 +13,7 @@ import ComposableArchitecture
 // MARK: - Client
 
 struct AudioPlayerClient {
-    var play: @Sendable (_ url: URL) async throws -> Void
+    var play: @Sendable (_ url: URL, _ rate: Double) async throws -> Void
     var playWithoutReplacing: @Sendable () -> Void
     var pause: @Sendable () -> Void
     var stop: @Sendable () -> Void
@@ -39,9 +39,10 @@ extension AudioPlayerClient: DependencyKey {
         }
         
         return AudioPlayerClient(
-            play: { url in
+            play: { url, rate in
                 let item = AVPlayerItem(url: url)
                 player.replaceCurrentItem(with: item)
+                player.defaultRate = Float(rate)
                 player.play()
             },
             playWithoutReplacing: {
@@ -63,12 +64,11 @@ extension AudioPlayerClient: DependencyKey {
                 )
             },
             setRate: { rate, paused in
-                player.rate = Float(rate)
                 if paused {
-                    // Unexpected gotcha from apple that we should call
-                    // additionally pause(), since if we don't - player will start playing
-                    // even if it was previously paused
-                    player.pause()
+                    player.defaultRate = Float(rate)
+                } else {
+                    player.rate = Float(rate)
+                    player.defaultRate = Float(rate)
                 }
             },
             observeProgress: {

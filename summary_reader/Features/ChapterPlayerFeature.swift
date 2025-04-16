@@ -82,6 +82,7 @@ struct ChapterPlayerFeature {
                 
                 let chapter = state.currentChapter
                 let playerState = state.playerState
+                let rate = state.playbackRate
                 
                 let shouldReplaceItem = playerState == .newlyAdded || playerState == .stopped
                 
@@ -89,7 +90,7 @@ struct ChapterPlayerFeature {
                     if shouldReplaceItem {
                         do {
                             let url = try await audioFileClient.getAudioFileURL(chapter)
-                            try await audioPlayer.play(url)
+                            try await audioPlayer.play(url, rate)
                         }
                         catch {
                             await send(.error(reason: error.localizedDescription))
@@ -175,7 +176,7 @@ struct ChapterPlayerFeature {
                 }
                 let previousIndex = state.currentIndex - 1
                 state.currentIndex = previousIndex
-                state.resetPlaybackState()
+                state.prepareForNewChapter()
                 return .concatenate(
                     .send(.stop),
                     .send(.play)
@@ -188,7 +189,7 @@ struct ChapterPlayerFeature {
                 
                 let nextIndex = state.currentIndex + 1
                 state.currentIndex = nextIndex
-                state.resetPlaybackState()
+                state.prepareForNewChapter()
                 return .concatenate(
                     .send(.stop),
                     .send(.play)
@@ -208,5 +209,11 @@ private extension ChapterPlayerFeature.State {
         playbackTime = 0
         duration = 0
         playbackRate = 1.0
+    }
+    
+    mutating func prepareForNewChapter() {
+        isPlaying = false
+        playbackTime = 0
+        duration = 0
     }
 }
