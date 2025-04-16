@@ -118,7 +118,7 @@ private struct ChapterRowLink: View {
                     ),
                     reducer: { ChapterPlayerFeature() }
                 ),
-                coverImage: book.image
+                book: book,
             )
         ) {
             VStack(alignment: .leading, spacing: 4) {

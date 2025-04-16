@@ -8,6 +8,21 @@
 import Foundation
 import UIKit
 
+// MARK: - Image Loading Error
+
+enum AudioBookError: LocalizedError, Equatable {
+    case imageNotExist(String)
+    
+    var localizedDescription: String {
+        switch self {
+        case .imageNotExist(let name):
+            return "Image \(name) not exist"
+        }
+    }
+}
+
+// MARK: - AudioBook
+
 struct AudioBook: Decodable, Equatable, Identifiable {
     let id: String
     let title: String
@@ -17,7 +32,10 @@ struct AudioBook: Decodable, Equatable, Identifiable {
 }
 
 extension AudioBook {
-    var image: UIImage {
+    func loadCoverImage() async throws -> UIImage {
+        // To simulate response time from server
+        try await Task.sleep(for: .seconds(1.5))
+        
         guard
             let url = Bundle.main.url(
                 forResource: coverImage,
@@ -26,7 +44,7 @@ extension AudioBook {
             let data = try? Data(contentsOf: url),
             let uiImage = UIImage(data: data)
         else {
-            fatalError("No cover image found")
+            throw AudioBookError.imageNotExist(coverImage)
         }
         
         return uiImage

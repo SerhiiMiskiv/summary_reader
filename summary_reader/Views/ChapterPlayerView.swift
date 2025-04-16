@@ -13,16 +13,11 @@ import ComposableArchitecture
 struct ChapterPlayerView: View {
     @Bindable var store: StoreOf<ChapterPlayerFeature>
     
-    let coverImage: UIImage
+    let book: AudioBook
 
     var body: some View {
         VStack(spacing: 24) {
-            Image(uiImage: coverImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 280)
-                .cornerRadius(16)
-                .shadow(radius: 6)
+            LoadableImageView(book: book)
             
             Text(store.currentChapter.title)
                 .font(.title2)
@@ -43,6 +38,53 @@ struct ChapterPlayerView: View {
     }
 }
 
+// MARK: Loadable Image View
+
+private struct LoadableImageView: View {
+    let book: AudioBook
+    
+    @State private var image: UIImage? = nil
+    @State private var isLoading = true
+    @State private var error: String?
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.systemGray6))
+                .frame(width: 280, height: 280)
+                .shadow(radius: 6)
+
+            if let image = image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 240, height: 240)
+                    .cornerRadius(16)
+            } else if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+            } else {
+                Image(systemName: "photo")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.gray)
+                    .frame(width: 80, height: 80)
+            }
+        }
+        .padding(.top, 8)
+        .onAppear {
+            Task {
+                do {
+                    image = try await book.loadCoverImage()
+                } catch {
+                    print("Failed to load image:", error.localizedDescription)
+                    self.error = error.localizedDescription
+                }
+                isLoading = false
+            }
+        }
+    }
+}
 // MARK: - Controls
 
 private struct Controls: View {
