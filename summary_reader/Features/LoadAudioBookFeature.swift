@@ -20,11 +20,11 @@ struct LoadAudioBookFeature {
 
     enum Action: Equatable, BindableAction {
         case onAppear
-        case bookLoaded(Result<AudioBook, BookClientError>)
+        case bookLoaded(Result<AudioBook, AudioBookLoadingError>)
         case binding(BindingAction<State>)
     }
 
-    @Dependency(\.bookClient) var bookClient
+    @Dependency(\.audioBookLoadingClient) var bookClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -42,7 +42,7 @@ struct LoadAudioBookFeature {
                         let book = try await bookClient.loadBook()
                         await send(.bookLoaded(.success(book)))
                     } catch {
-                        await send(.bookLoaded(.failure(error as! BookClientError)))
+                        await send(.bookLoaded(.failure(error as! AudioBookLoadingError)))
                     }
                 }
                 

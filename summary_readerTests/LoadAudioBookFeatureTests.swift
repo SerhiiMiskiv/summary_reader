@@ -29,7 +29,7 @@ struct LoadAudioBookFeatureTests {
                 LoadAudioBookFeature()
             },
             withDependencies: {
-                $0.bookClient.loadBook = {
+                $0.audioBookLoadingClient.loadBook = {
                     mockAudioBook
                 }
             }
@@ -49,7 +49,7 @@ struct LoadAudioBookFeatureTests {
     
     @Test
     func testFailedlAudioBookFetch() async {
-        let error: BookClientError = .fileNotFound
+        let error: AudioBookLoadingError = .fileNotFound
         
         let store = TestStore(
             initialState: LoadAudioBookFeature.State(),
@@ -57,7 +57,7 @@ struct LoadAudioBookFeatureTests {
                 LoadAudioBookFeature()
             },
             withDependencies: {
-                $0.bookClient.loadBook = {
+                $0.audioBookLoadingClient.loadBook = {
                     throw error
                 }
             }

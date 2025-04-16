@@ -8,27 +8,28 @@
 import Foundation
 import ComposableArchitecture
 
-enum BookClientError: Error {
+enum AudioBookLoadingError: Error {
     case fileNotFound
 }
 
 // MARK: - Client
 
-struct BookClient {
+struct AudioBookLoadingClient {
     var loadBook: @Sendable () async throws -> AudioBook
 }
 
 // MARK: - Dependency Key
 
-extension BookClient: DependencyKey {
-    static let liveValue = BookClient(
+extension AudioBookLoadingClient: DependencyKey {
+    static let liveValue = AudioBookLoadingClient(
         loadBook: {
+            // To simulate response time from server
             try await Task.sleep(for: .seconds(1.5))
 
             guard let url = Bundle.main.url(
                 forResource: "the_call_of_cthulhu",
                 withExtension: "json") else {
-                throw BookClientError.fileNotFound
+                throw AudioBookLoadingError.fileNotFound
             }
 
             let data = try Data(contentsOf: url)
@@ -41,8 +42,8 @@ extension BookClient: DependencyKey {
 // MARK: - Dependency Value
 
 extension DependencyValues {
-    var bookClient: BookClient {
-        get { self[BookClient.self] }
-        set { self[BookClient.self] = newValue }
+    var audioBookLoadingClient: AudioBookLoadingClient {
+        get { self[AudioBookLoadingClient.self] }
+        set { self[AudioBookLoadingClient.self] = newValue }
     }
 }
