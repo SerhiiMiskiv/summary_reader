@@ -16,7 +16,6 @@ struct ChapterPlayerFeature {
     
     enum PlayerState: Equatable {
         case newlyAdded
-        case playing
         case paused
         case stopped
     }
@@ -80,6 +79,7 @@ struct ChapterPlayerFeature {
                 
             case .startPlaying:
                 state.isPlaying = true
+                
                 let chapter = state.currentChapter
                 let playerState = state.playerState
                 
@@ -154,7 +154,8 @@ struct ChapterPlayerFeature {
                 
             case let .setRate(rate):
                 state.playbackRate = rate
-                return .run { _ in audioPlayer.setRate(rate) }
+                let isPaused = state.isPlaying == false
+                return .run { _ in audioPlayer.setRate(rate, isPaused) }
                 
             case .skipForward:
                 let newTime = min(state.playbackTime + 10, state.duration)

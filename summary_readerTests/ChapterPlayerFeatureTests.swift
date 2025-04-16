@@ -350,11 +350,7 @@ struct ChapterPlayerFeatureTests {
             seek: { _ in },
             setRate: { _ in },
             observeProgress: {
-                AsyncStream { continuation in
-//                    for time in mockProgress {
-//                        continuation.yield(time)
-//                    }
-                }
+                AsyncStream { _ in }
             }
         )
         

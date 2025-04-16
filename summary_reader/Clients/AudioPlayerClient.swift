@@ -18,7 +18,7 @@ struct AudioPlayerClient {
     var pause: @Sendable () -> Void
     var stop: @Sendable () -> Void
     var seek: @Sendable (_ time: TimeInterval) -> Void
-    var setRate: @Sendable (_ rate: Double) -> Void
+    var setRate: @Sendable (_ rate: Double, _ paused: Bool) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
 }
 
@@ -62,8 +62,14 @@ extension AudioPlayerClient: DependencyKey {
                     toleranceAfter: .zero
                 )
             },
-            setRate: { rate in
+            setRate: { rate, paused in
                 player.rate = Float(rate)
+                if paused {
+                    // Unexpected gotcha from apple that we should call
+                    // additionally pause(), since if we don't - player will start playing
+                    // even if it was previously paused
+                    player.pause()
+                }
             },
             observeProgress: {
                 AsyncStream { continuation in
