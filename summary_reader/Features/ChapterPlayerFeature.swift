@@ -41,6 +41,7 @@ struct ChapterPlayerFeature {
         case binding(BindingAction<State>)
         case play
         case startPlaying
+        case playNextIfExist
         
         case observeProgress
         case progressUpdated(TimeInterval)
@@ -101,13 +102,20 @@ struct ChapterPlayerFeature {
                     await send(.observeProgress)
                 }
                 
+            case .playNextIfExist:
+                guard state.currentIndex + 1 < state.chapters.count else {
+                    return .send(.stop)
+                }
+                
+                return .send(.nextChapter)
+                
             case .observeProgress:
                 let duration = state.duration
                 return .run { send in
                     for await time in audioPlayer.observeProgress() {
                         await send(.progressUpdated(time))
                         if duration > 0, abs(time - duration) < 0.25 {
-                            await send(.stop)
+                            await send(.playNextIfExist)
                             break
                         }
                     }
