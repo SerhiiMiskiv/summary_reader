@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct BookFeature {
+struct LoadAudioBookFeature {
     
     @ObservableState
     struct State: Equatable {
@@ -38,12 +38,12 @@ struct BookFeature {
                 state.isLoading = true
                 state.error = nil
                 return .run { send in
-                    await send(.bookLoaded(
-                        Result {
-                            try await bookClient.loadBook()
-                        }
-                        .mapError { $0 as? BookClientError ?? .fileNotFound }
-                    ))
+                    do {
+                        let book = try await bookClient.loadBook()
+                        await send(.bookLoaded(.success(book)))
+                    } catch {
+                        await send(.bookLoaded(.failure(error as! BookClientError)))
+                    }
                 }
                 
             case let .bookLoaded(.success(book)):

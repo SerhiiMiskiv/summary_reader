@@ -11,7 +11,7 @@ import ComposableArchitecture
 @testable import summary_reader
 
 @MainActor
-struct BookFeatureTests {
+struct LoadAudioBookFeatureTests {
 
     @Test
     func testSuccessfulAudioBookFetch() async {
@@ -24,9 +24,9 @@ struct BookFeatureTests {
         )
         
         let store = TestStore(
-            initialState: BookFeature.State(),
+            initialState: LoadAudioBookFeature.State(),
             reducer: {
-                BookFeature()
+                LoadAudioBookFeature()
             },
             withDependencies: {
                 $0.bookClient.loadBook = {
@@ -52,9 +52,9 @@ struct BookFeatureTests {
         let error: BookClientError = .fileNotFound
         
         let store = TestStore(
-            initialState: BookFeature.State(),
+            initialState: LoadAudioBookFeature.State(),
             reducer: {
-                BookFeature()
+                LoadAudioBookFeature()
             },
             withDependencies: {
                 $0.bookClient.loadBook = {

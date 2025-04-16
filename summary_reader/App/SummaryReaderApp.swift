@@ -14,8 +14,8 @@ struct SummaryReaderApp: App {
         WindowGroup {
             ChaptersListView(
                 store: Store(
-                    initialState: BookFeature.State(),
-                    reducer: { BookFeature() }
+                    initialState: LoadAudioBookFeature.State(),
+                    reducer: { LoadAudioBookFeature() }
                 )
             )
         }

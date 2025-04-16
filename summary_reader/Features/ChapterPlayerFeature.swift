@@ -157,9 +157,7 @@ struct ChapterPlayerFeature {
                 return .send(.seek(to: newTime))
                 
             case let .seek(to: position):
-                state.playbackTime = position
-                let rate = state.playbackRate
-                return .run { _ in audioPlayer.seek(position, rate) }
+                return .run { _ in audioPlayer.seek(position) }
                 
             case .previousChapter:
                 guard state.currentIndex > 0 else { return .none }

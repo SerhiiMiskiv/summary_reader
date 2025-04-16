@@ -23,6 +23,8 @@ struct BookClient {
 extension BookClient: DependencyKey {
     static let liveValue = BookClient(
         loadBook: {
+            try await Task.sleep(for: .seconds(1.5))
+
             guard let url = Bundle.main.url(
                 forResource: "the_call_of_cthulhu",
                 withExtension: "json") else {

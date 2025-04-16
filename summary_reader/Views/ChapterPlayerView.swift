@@ -33,9 +33,8 @@ struct ChapterPlayerView: View {
                 .font(.body)
                 .multilineTextAlignment(.leading)
             
-            Controls(store: store)
-            
             ProgressSlider(store: store)
+            Controls(store: store)
         }
         .padding()
         .onDisappear {
@@ -51,6 +50,17 @@ private struct Controls: View {
 
     var body: some View {
         VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                ForEach([0.5, 1.0, 1.5, 2.0], id: \.self) { rate in
+                    PlaybackRateButton(
+                        rate: rate,
+                        selectedRate: store.state.playbackRate,
+                        action: { store.send(.setRate(rate)) }
+                    )
+                }
+            }
+            .padding(.top, 12)
+                        
             HStack(spacing: 32) {
                 Button(action: {
                     store.send(.previousChapter)
@@ -82,18 +92,8 @@ private struct Controls: View {
                     Image(systemName: "forward.fill")
                 }
             }
-            .font(.title2)
-
-            HStack(spacing: 12) {
-                ForEach([0.5, 1.0, 1.5, 2.0], id: \.self) { rate in
-                    PlaybackRateButton(
-                        rate: rate,
-                        selectedRate: store.state.playbackRate,
-                        action: { store.send(.setRate(rate)) }
-                    )
-                }
-            }
-            .padding(.top, 12)
+            .font(.largeTitle)
+            .padding(.top, 24)
         }
     }
 }
@@ -135,14 +135,14 @@ private struct ProgressSlider: View {
                     get: {
                         isSeeking ? seekPosition : store.state.playbackTime
                     },
-                    set: { seekPosition = $0 }
+                    set: {
+                        seekPosition = $0
+                    }
                 ),
-                in: 0...(store.state.duration > 0 ? store.state.duration : 100),
+                in: 0...store.state.duration,
                 onEditingChanged: { editing in
                     isSeeking = editing
-                    if editing {
-                        store.send(.pause)
-                    } else {
+                    if !editing {
                         store.send(.seek(to: seekPosition))
                     }
                 }

@@ -17,7 +17,7 @@ struct AudioPlayerClient {
     var playWithoutReplacing: @Sendable () -> Void
     var pause: @Sendable () -> Void
     var stop: @Sendable () -> Void
-    var seek: @Sendable (_ time: TimeInterval, _ rate: Double) -> Void
+    var seek: @Sendable (_ time: TimeInterval) -> Void
     var setRate: @Sendable (_ rate: Double) -> Void
     var observeProgress: @Sendable () -> AsyncStream<TimeInterval>
 }
@@ -27,6 +27,7 @@ struct AudioPlayerClient {
 extension AudioPlayerClient: DependencyKey {
     static let liveValue: AudioPlayerClient = {
         let player = AVPlayer()
+        
         let progressSubject = PassthroughSubject<TimeInterval, Never>()
         var timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: CMTime(
@@ -36,30 +37,38 @@ extension AudioPlayerClient: DependencyKey {
         ) { time in
             progressSubject.send(time.seconds)
         }
-
+        
         return AudioPlayerClient(
             play: { url in
                 let item = AVPlayerItem(url: url)
                 player.replaceCurrentItem(with: item)
+                print("Play with replacing")
                 player.play()
             },
             playWithoutReplacing: {
+                print("Play without replacing")
                 player.play()
             },
             pause: {
+                print("Pause player")
                 player.pause()
             },
             stop: {
+                print("Stop player")
                 player.pause()
                 player.replaceCurrentItem(with: nil)
             },
-            seek: { time, rate in
+            seek: { time in
                 let cmTime = CMTime(seconds: time, preferredTimescale: 1)
-                player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
-                    player.rate = Float(rate)
-                }
+                print("Seek position in player: \(time)")
+                player.seek(
+                    to: cmTime,
+                    toleranceBefore: .zero,
+                    toleranceAfter: .zero
+                )
             },
             setRate: { rate in
+                print("Set rate: \(rate)")
                 player.rate = Float(rate)
             },
             observeProgress: {
